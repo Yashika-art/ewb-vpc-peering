@@ -1,4 +1,3 @@
-# Append to ~/.ssh/config on YOUR LAPTOP. Replace BASTION_PUBLIC_IP.
 Host ewb-bastion
     HostName BASTION_PUBLIC_IP
     User ec2-user
