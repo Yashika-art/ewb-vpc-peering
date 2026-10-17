@@ -1,6 +1,8 @@
 # AWS VPC Peering Project (EWB Cloud Labs - Project 01)
 
-**Student:** YOUR NAME  **Batch:** YOUR BATCH  **Region:** ap-south-1 (Mumbai)  **Completed:** DD/MM/YYYY
+**Student:** YASHIKA **Planned Region:** north-west-in (Delhi)
+
+> **Status: design and automation only.** This repository contains the planned architecture, Terraform code, test scripts and viva notes for the project. The infrastructure has **not been deployed**, so there are no test results or screenshots yet.
 
 Two private VPCs connected with VPC peering, with one public bastion in VPC A used for administration (SSH ProxyJump).
 
@@ -15,22 +17,20 @@ Two private VPCs connected with VPC peering, with one public bastion in VPC A us
  +---------------------------------------------------+ pcx  +--------------------------------+
 ```
 
-| Resource | Name | CIDR / IP | Actual ID |
-|---|---|---|---|
-| VPC A | ewb-vpc-a | 10.10.0.0/16 | vpc-xxxx |
-| Public subnet A | ewb-a-public | 10.10.1.0/24 | subnet-xxxx |
-| Private subnet A | ewb-a-private | 10.10.2.0/24 | subnet-xxxx |
-| VPC B | ewb-vpc-b | 10.20.0.0/16 | vpc-xxxx |
-| Private subnet B | ewb-b-private | 10.20.1.0/24 | subnet-xxxx |
-| Internet gateway | ewb-igw-a | - | igw-xxxx |
-| Route tables | ewb-rt-a-public / ewb-rt-a-private / ewb-rt-b-private | - | rtb-xxxx |
-| Security groups | ewb-sg-bastion / ewb-sg-app-a / ewb-sg-app-b | - | sg-xxxx |
-| Bastion | ewb-bastion | 10.10.1.10 + public IPv4 | i-xxxx |
-| App-A | ewb-app-a | 10.10.2.10 | i-xxxx |
-| App-B | ewb-app-b | 10.20.1.10 | i-xxxx |
-| Peering | ewb-a-b-peer | VPC A <-> VPC B | pcx-xxxx |
-
-(Replace every `xxxx` with your real IDs - `terraform output` prints most of them.)
+| Resource | Name | CIDR / IP |
+|---|---|---|
+| VPC A | ewb-vpc-a | 10.10.0.0/16 |
+| Public subnet A | ewb-a-public | 10.10.1.0/24 |
+| Private subnet A | ewb-a-private | 10.10.2.0/24 |
+| VPC B | ewb-vpc-b | 10.20.0.0/16 |
+| Private subnet B | ewb-b-private | 10.20.1.0/24 |
+| Internet gateway | ewb-igw-a | - |
+| Route tables | ewb-rt-a-public / ewb-rt-a-private / ewb-rt-b-private | - |
+| Security groups | ewb-sg-bastion / ewb-sg-app-a / ewb-sg-app-b | - |
+| Bastion | ewb-bastion | 10.10.1.10 + public IPv4 |
+| App-A | ewb-app-a | 10.10.2.10 |
+| App-B | ewb-app-b | 10.20.1.10 |
+| Peering | ewb-a-b-peer | VPC A <-> VPC B |
 
 ## Route tables
 
@@ -71,27 +71,19 @@ cd .. && ./scripts/run_tests.sh baseline       # expect 100% packet loss
 cd terraform && terraform apply -var enable_peering=true
 cd .. && ./scripts/run_tests.sh peered         # expect 0% loss both ways + shell on App-B
 
-# Controlled failure (ICMP rule on ewb-sg-app-b)
-./scripts/controlled_failure.sh remove         # ping from App-A -> fails
-./scripts/controlled_failure.sh restore        # ping again -> works
+# Controlled ICMP block test (rule on ewb-sg-app-b)
+./scripts/controlled_failure.sh remove         # ping from App-A is blocked
+./scripts/controlled_failure.sh restore        # ping again is allowed
 
 # Cleanup (after saving evidence)
 cd terraform && terraform destroy
 ```
 
-## Test results (my own execution)
+## Test results
 
-Fill in after running. Real output is saved in `evidence/`; screenshots go in `evidence/screenshots/`.
+**Pending deployment.** After running the lab, results will be saved in `evidence/` and screenshots in `evidence/screenshots/`.
 
-| Test | Result | Evidence |
-|---|---|---|
-| 01 Baseline (App-A -> App-B before peering) | _paste result_ | evidence/test01_baseline.txt |
-| 02 Forward ping | _paste result_ | evidence/test02_forward.txt |
-| 03 Reverse ping | _paste result_ | evidence/test03_reverse.txt |
-| 04 Private SSH to App-B | _paste result_ | evidence/test04_ssh.txt |
-| 05 No public IPv4 on App-A/App-B | _screenshot_ | evidence/screenshots/ |
-| 06 ICMP rule removed -> failure | _paste result_ | evidence/screenshots/ |
-| 07 ICMP rule restored -> recovery | _paste result_ | evidence/screenshots/ |
+Planned tests: 01 baseline (no connectivity before peering), 02 forward ping, 03 reverse ping, 04 private SSH to App-B, 05 no public IPv4 on private hosts, 06 controlled ICMP block, 07 recovery.
 
 ## Explanation: forward and return path
 
@@ -99,10 +91,6 @@ Fill in after running. Real output is saved in `evidence/`; screenshots go in `e
 *Return:* App-B replies to 10.10.2.10. `ewb-rt-b-private` sends 10.10.0.0/16 to the peering connection. Security groups are stateful, so the reply is allowed automatically.
 More in [docs/viva-answers.md](docs/viva-answers.md).
 
-## What I learned
-
-_Write 3-5 sentences in your own words._
-
 ## Cleanup
 
-_Add screenshots showing no remaining instances, volumes, VPCs, peering connections or public IPv4 addresses (filter by tag Project = EWB-VPC-Peering)._
+After deployment, run `terraform destroy` (or delete resources in the console) and verify nothing tagged `Project = EWB-VPC-Peering` remains.
