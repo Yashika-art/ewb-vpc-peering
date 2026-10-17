@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Usage: ./scripts/run_tests.sh baseline   (before peering)
+#        ./scripts/run_tests.sh peered     (after peering + routes)
+# Runs from your laptop using the ~/.ssh/config entries and saves the REAL output to evidence/.
+set -u
+mkdir -p evidence
+case "${1:-}" in
+  baseline)
+    { echo "### Test 01 Baseline (App-A -> App-B, no peering) $(date -u)"
+      ssh ewb-app-a 'hostname; hostname -I; ping -c 4 -W 2 10.20.1.10'; } 2>&1 | tee evidence/test01_baseline.txt ;;
+  peered)
+    { echo "### Test 02 Forward path (App-A -> App-B) $(date -u)"
+      ssh ewb-app-a 'hostname; hostname -I; ping -c 4 10.20.1.10'; } 2>&1 | tee evidence/test02_forward.txt
+    { echo "### Test 03 Reverse path (App-B -> App-A) $(date -u)"
+      ssh ewb-app-b 'hostname; hostname -I; ping -c 4 10.10.2.10'; } 2>&1 | tee evidence/test03_reverse.txt
+    { echo "### Test 04 Private SSH to App-B via bastion $(date -u)"
+      ssh ewb-app-b 'echo "Connected to: $(hostname) $(hostname -I)"'; } 2>&1 | tee evidence/test04_ssh.txt ;;
+  *) echo "usage: $0 baseline|peered"; exit 1 ;;
+esac
