@@ -1,11 +1,11 @@
 variable "region" {
   description = "AWS Region for every resource"
   type        = string
-  default     = "ap-south-1"
+  default     = "north-west"
 }
 
 variable "student_name" {
-  description = "Your name (used for the Student tag)"
+  description = "Student name (used for the Student tag)"
   type        = string
 }
 
@@ -27,7 +27,7 @@ variable "instance_type" {
 }
 
 variable "enable_peering" {
-  description = "false = baseline (no peering, no peer routes). true = peering + routes. Apply twice to capture the baseline failure first."
+  description = "false = baseline (no peering, no peer routes). true = peering + routes. Apply twice to capture the baseline first."
   type        = bool
   default     = false
 }
