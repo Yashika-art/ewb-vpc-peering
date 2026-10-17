@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars (git-ignored) and edit
+student_name    = "Your Name"
+my_public_ip    = "203.0.113.25"   # run: curl -s https://checkip.amazonaws.com
+public_key_path = "~/.ssh/ewb-lab.pub"
+region          = "ap-south-1"
+enable_peering  = false            # set true for phase 2
